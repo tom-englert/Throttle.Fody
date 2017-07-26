@@ -1,0 +1,111 @@
+﻿using System;
+using System.Reflection;
+using System.Threading;
+
+using NUnit.Framework;
+
+using Tests;
+
+public class ClassToProcess
+{
+    private Throttle1 _throttle;
+
+    public int NumberOfWithSimpeThrottleCalls { get; private set; }
+
+    public void WithSimpleThrottle()
+    {
+        var throttle = this._throttle;
+        if (throttle == null)
+        {
+            Interlocked.CompareExchange(ref this._throttle, new Throttle1(this.WithSimpleThrottle_X), (Throttle1)null);
+            throttle = this._throttle;
+        }
+        throttle.Tick();
+    }
+
+    private void WithSimpleThrottle_X()
+    {
+        NumberOfWithSimpeThrottleCalls += 1;
+    }
+}
+
+class Throttle1
+{
+    private readonly Action _callback;
+    private readonly int _timeout;
+    private int _counter;
+
+
+    public Throttle1(Action callback)
+        : this(callback, 10)
+    {
+    }
+
+    public Throttle1(Action callback, int timeout)
+    {
+        _callback = callback;
+        _timeout = timeout;
+    }
+
+    public void Tick()
+    {
+        if ((++_counter % _timeout) == 0)
+            _callback();
+    }
+}
+
+public class ThrottleTests
+{
+    readonly Assembly assembly = WeaverHelper.Create().Assembly;
+
+    [Test]
+    public void ReferenceTest()
+    {
+        var target = new ClassToProcess();
+
+        for (var outer = 0; outer < 3; outer++)
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                Assert.AreEqual(outer, target.NumberOfWithSimpeThrottleCalls);
+                target.WithSimpleThrottle();
+            }
+
+            Assert.AreEqual(outer + 1, target.NumberOfWithSimpeThrottleCalls);
+        }
+    }
+
+    [Test]
+    [TestCase("ClassToProcess1", 10)]
+    [TestCase("ClassToProcess2", 5)]
+    [TestCase("ClassToProcess3", 15)]
+    public void TestSimple(string className, int throttleTreshold)
+    {
+        Test(className, throttleTreshold, target => target.WithSimpleThrottle(), target => target.NumberOfWithSimpeThrottleCalls);
+    }
+
+    [Test]
+    [TestCase("ClassToProcess1", 20)]
+    [TestCase("ClassToProcess2", 50)]
+    [TestCase("ClassToProcess3", 25)]
+    public void TestTimer(string className, int throttleTreshold)
+    {
+        Test(className, throttleTreshold, target => target.WithTimerThrottle(), target => target.NumberOfWithTimerThrottleCalls);
+    }
+
+    private void Test(string className, int throttleTreshold, Action<dynamic> method, Func<dynamic, int> numberOfCalls)
+    {
+        var target = assembly.GetInstance("AssemblyToProcess." + className);
+
+        for (var outer = 0; outer < 3; outer++)
+        {
+            for (var i = 0; i < throttleTreshold; i++)
+            {
+                Assert.AreEqual(outer, numberOfCalls(target));
+                method(target);
+            }
+
+            Assert.AreEqual(outer + 1, numberOfCalls(target));
+        }
+    }
+}
