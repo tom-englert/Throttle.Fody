@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using Throttle;
+// ReSharper disable UnusedMember.Global
 
 [assembly:AssemblyVersion("0.0.1.*")]
 [assembly: ThrottleDefaultImplementation(typeof(AssemblyToProcess.Throttle3))]
@@ -30,7 +31,7 @@ namespace AssemblyToProcess
     class Throttle1
     {
         private readonly Action _callback;
-        private readonly int _timeout;
+        private readonly int _threshold;
         private int _counter;
 
 
@@ -39,16 +40,16 @@ namespace AssemblyToProcess
         {
         }
 
-        public Throttle1(int timeout, Action callback)
+        public Throttle1(int threshold, Action callback)
         {
             _callback = callback;
-            _timeout = timeout;
+            _threshold = threshold;
         }
 
         public void Tick()
         {
-            if ((++_counter % _timeout) == 0)
-                _callback();
+            if ((++_counter % _threshold) == 0)
+                _callback?.Invoke();
         }
     }
 
@@ -75,25 +76,24 @@ namespace AssemblyToProcess
     class Throttle2
     {
         private readonly Action _callback;
-        private readonly int _timeout;
+        private readonly int _threshold;
         private int _counter;
-
 
         public Throttle2(Action callback)
             : this(callback, 5)
         {
         }
 
-        public Throttle2(Action callback, int timeout)
+        public Throttle2(Action callback, int threshold)
         {
             _callback = callback;
-            _timeout = timeout;
+            _threshold = threshold;
         }
 
         public void Tock()
         {
-            if ((++_counter % _timeout) == 0)
-                _callback();
+            if ((++_counter % _threshold) == 0)
+                _callback?.Invoke();
         }
     }
 
@@ -119,25 +119,24 @@ namespace AssemblyToProcess
     class Throttle3
     {
         private readonly Action _callback;
-        private readonly int _timeout;
+        private readonly int _threshold;
         private int _counter;
-
 
         public Throttle3(Action callback)
             : this(callback, 15)
         {
         }
 
-        public Throttle3(Action callback, int timeout)
+        public Throttle3(Action callback, int threshold)
         {
             _callback = callback;
-            _timeout = timeout;
+            _threshold = threshold;
         }
 
         public void Tick()
         {
-            if ((++_counter % _timeout) == 0)
-                _callback();
+            if ((++_counter % _threshold) == 0)
+                _callback?.Invoke();
         }
     }
 

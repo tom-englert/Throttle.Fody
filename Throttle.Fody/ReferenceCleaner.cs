@@ -11,7 +11,7 @@ internal static class ReferenceCleaner
     private static readonly HashSet<string> attributeNames = new HashSet<string>
     {
         "Throttle.ThrottleDefaultImplementationAttribute",
-        "Throttle.ThrottleDefaultTimeoutAttribute"
+        "Throttle.ThrottleDefaultThresholdAttribute"
     };
 
     private static void ProcessAssembly(ModuleDefinition moduleDefinition)

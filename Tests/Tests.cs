@@ -14,11 +14,11 @@ public class ClassToProcess
 
     public void WithSimpleThrottle()
     {
-        var throttle = this._throttle;
+        var throttle = _throttle;
         if (throttle == null)
         {
-            Interlocked.CompareExchange(ref this._throttle, new Throttle1(this.WithSimpleThrottle_X), (Throttle1)null);
-            throttle = this._throttle;
+            Interlocked.CompareExchange(ref _throttle, new Throttle1(WithSimpleThrottle_X), null);
+            throttle = _throttle;
         }
         throttle.Tick();
     }
@@ -32,7 +32,7 @@ public class ClassToProcess
 class Throttle1
 {
     private readonly Action _callback;
-    private readonly int _timeout;
+    private readonly int _threshold;
     private int _counter;
 
 
@@ -41,22 +41,22 @@ class Throttle1
     {
     }
 
-    public Throttle1(Action callback, int timeout)
+    public Throttle1(Action callback, int threshold)
     {
         _callback = callback;
-        _timeout = timeout;
+        _threshold = threshold;
     }
 
     public void Tick()
     {
-        if ((++_counter % _timeout) == 0)
-            _callback();
+        if ((++_counter % _threshold) == 0)
+            _callback?.Invoke();
     }
 }
 
 public class ThrottleTests
 {
-    readonly Assembly assembly = WeaverHelper.Create().Assembly;
+    readonly Assembly _assembly = WeaverHelper.Create().Assembly;
 
     [Test]
     public void ReferenceTest()
@@ -95,7 +95,7 @@ public class ThrottleTests
 
     private void Test(string className, int throttleTreshold, Action<dynamic> method, Func<dynamic, int> numberOfCalls)
     {
-        var target = assembly.GetInstance("AssemblyToProcess." + className);
+        var target = _assembly.GetInstance("AssemblyToProcess." + className);
 
         for (var outer = 0; outer < 3; outer++)
         {

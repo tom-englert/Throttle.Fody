@@ -20,7 +20,7 @@ namespace Throttle.Fody
             var allTypes = moduleDefinition.GetTypes();
 
             var allClasses = allTypes
-                .Where(x => x.IsClass)
+                .Where(x => x.IsClass && (x.BaseType != null))
                 .ToArray();
 
             var weavedMethods = new Dictionary<MethodDefinition, MethodDefinition>();
@@ -40,7 +40,9 @@ namespace Throttle.Fody
 
         private static void PostProcessClass(TypeDefinition classDefinition, ILogger logger, IReadOnlyDictionary<MethodDefinition, MethodDefinition> weavedMethods, HashSet<MethodDefinition> injectedMethods)
         {
-            var allMethods = classDefinition.Methods.Where(method => method.HasBody);
+            var allMethods = classDefinition.Methods
+                .Where(method => method.HasBody)
+                .ToArray();
 
             foreach (var method in allMethods)
             {
@@ -77,7 +79,9 @@ namespace Throttle.Fody
         {
             throttleParameters.ReadDefaults(classDefinition);
 
-            var allMethods = classDefinition.Methods.Where(method => method.HasBody);
+            var allMethods = classDefinition.Methods
+                .Where(method => method.HasBody)
+                .ToArray();
 
             foreach (var method in allMethods)
             {
@@ -126,9 +130,9 @@ namespace Throttle.Fody
                 return;
             }
 
-            var timeout = throttleParameters.Timeout.GetValueOrDefault();
+            var threshold = throttleParameters.Threshold.GetValueOrDefault();
 
-            var requiredParameterCount = ((timeout > 0) ? 2 : 1);
+            var requiredParameterCount = ((threshold > 0) ? 2 : 1);
 
             var throttleImplementationConstructor = throttleImplementationType.GetConstructors().FirstOrDefault(c => c.Parameters.Count == requiredParameterCount);
             if (throttleImplementationConstructor == null)
@@ -144,12 +148,12 @@ namespace Throttle.Fody
                 return;
             }
 
-            var timeoutParamter = throttleImplementationConstructor.Parameters.FirstOrDefault(p => p.ParameterType.IsIntOrTimeSpan());
-            var timeoutParameterIndex = throttleImplementationConstructor.Parameters.IndexOf(timeoutParamter);
+            var thresholdParamter = throttleImplementationConstructor.Parameters.FirstOrDefault(p => p.ParameterType.IsIntOrTimeSpan());
+            var thresholdParameterIndex = throttleImplementationConstructor.Parameters.IndexOf(thresholdParamter);
 
-            if (requiredParameterCount == 2 && timeoutParamter == null)
+            if (requiredParameterCount == 2 && thresholdParamter == null)
             {
-                logger.LogError($"{throttleImplementationConstructor} does not have a parameter of type System.Int32 or System.TimeSpan to assign the timeout to.");
+                logger.LogError($"{throttleImplementationConstructor} does not have a parameter of type System.Int32 or System.TimeSpan to assign the threshold to.");
                 return;
             }
 
@@ -185,16 +189,16 @@ namespace Throttle.Fody
                 Instruction.Create(OpCodes.Ldloc_0),
                 Instruction.Create(OpCodes.Brtrue_S, jumpTarget));
 
-            if (timeoutParameterIndex == 0)
-                AddTimeOutParameter(instructions, timeout, timeoutParamter.ParameterType, coreReferences);
+            if (thresholdParameterIndex == 0)
+                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, coreReferences);
 
             instructions.AddRange(
                 Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldftn, method),
                 Instruction.Create(OpCodes.Newobj, coreReferences.ActionConstructorReference));
 
-            if (timeoutParameterIndex == 1)
-                AddTimeOutParameter(instructions, timeout, timeoutParamter.ParameterType, coreReferences);
+            if (thresholdParameterIndex == 1)
+                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, coreReferences);
 
             instructions.AddRange(
                 Instruction.Create(OpCodes.Newobj, throttleImplementationConstructor),
@@ -220,15 +224,15 @@ namespace Throttle.Fody
             weavedMethods[method] = newMethod;
         }
 
-        private static void AddTimeOutParameter(Collection<Instruction> instructions, int timeout, TypeReference parameterType, CoreReferences coreReferences)
+        private static void AddThresholdParameter(Collection<Instruction> instructions, int threshold, TypeReference parameterType, CoreReferences coreReferences)
         {
             if (parameterType.FullName == "System.Int32")
             {
-                instructions.Add(Instruction.Create(OpCodes.Ldc_I4, timeout));
+                instructions.Add(Instruction.Create(OpCodes.Ldc_I4, threshold));
             }
             else if (parameterType.FullName == "System.TimeSpan")
             {
-                instructions.Add(Instruction.Create(OpCodes.Ldc_R8, (double)timeout));
+                instructions.Add(Instruction.Create(OpCodes.Ldc_R8, (double)threshold));
                 instructions.Add(Instruction.Create(OpCodes.Call, coreReferences.TimeSpanFromMilisecondsReference));
             }
         }
