@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 using Throttle.Fody;
 
@@ -11,6 +12,7 @@ public class ModuleWeaver : ILogger
     public Action<string> LogInfo { get; set; }
     public Action<string> LogWarning { get; set; }
     public Action<string> LogError { get; set; }
+    public Action<string, SequencePoint> LogErrorPoint { get; set; }
 
     // An instance of Mono.Cecil.ModuleDefinition for processing
     public ModuleDefinition ModuleDefinition { get; set; }
@@ -19,6 +21,7 @@ public class ModuleWeaver : ILogger
     {
         // Initialize logging delegates to make testing easier
         LogDebug = LogInfo = LogWarning = LogError = _ => { };
+        LogErrorPoint = (_, __) => { };
     }
 
     public void Execute()
@@ -42,8 +45,11 @@ public class ModuleWeaver : ILogger
         LogWarning(message);
     }
 
-    void ILogger.LogError(string message)
+    void ILogger.LogError(string message, SequencePoint sequencePoint)
     {
-        LogError(message);
+        if (sequencePoint != null)
+            LogErrorPoint(message, sequencePoint);
+        else
+            LogError(message);
     }
 }

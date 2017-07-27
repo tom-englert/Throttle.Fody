@@ -27,7 +27,7 @@ namespace Throttle.Fody
 
             foreach (var classDefinition in allClasses)
             {
-                ProcessClass(classDefinition, throttleParameters, coreReferences, logger, weavedMethods);
+                ProcessClass(classDefinition, throttleParameters, moduleDefinition.SymbolReader, coreReferences, logger, weavedMethods);
             }
 
             var injectedMethods = new HashSet<MethodDefinition>(weavedMethods.Values);
@@ -75,7 +75,7 @@ namespace Throttle.Fody
             }
         }
 
-        private static void ProcessClass(TypeDefinition classDefinition, ThrottleParameters throttleParameters, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
+        private static void ProcessClass(TypeDefinition classDefinition, ThrottleParameters throttleParameters, ISymbolReader symbolReader, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
             throttleParameters.ReadDefaults(classDefinition);
 
@@ -85,11 +85,11 @@ namespace Throttle.Fody
 
             foreach (var method in allMethods)
             {
-                ProcessMethod(method, throttleParameters, coreReferences, logger, weavedMethods);
+                ProcessMethod(method, throttleParameters, symbolReader, coreReferences, logger, weavedMethods);
             }
         }
 
-        private static void ProcessMethod(MethodDefinition method, ThrottleParameters throttleParameters, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
+        private static void ProcessMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
             var throttleAttribute = method
                 .GetAttribute("Throttle.ThrottleAttribute");
@@ -97,54 +97,58 @@ namespace Throttle.Fody
             if (throttleAttribute == null)
                 return;
 
+            if (method.Parameters.Any() || method.ReturnType.FullName != "System.Void")
+            {
+                logger.LogError($"Can't weave throttle into method {method}: It does not have the signature 'void {method.Name}()'.", symbolReader.GetEntryPoint(method));
+                return;
+            }
+
             throttleParameters.ReadFromAttribute(throttleAttribute);
+            method.CustomAttributes.Remove(throttleAttribute);
 
             if (throttleParameters.Implementation == null)
             {
-                logger.LogError($"Can't weave method {method.FullName} - no throttle implementation is defined.");
+                logger.LogError($"Can't weave method {method.FullName} - no throttle implementation is defined.", symbolReader.GetEntryPoint(method));
                 return;
             }
 
-            method.CustomAttributes.Remove(throttleAttribute);
-
-            InjectThrottleMethod(method, throttleParameters, coreReferences, logger, weavedMethods);
+            InjectThrottleMethod(method, throttleParameters, symbolReader, coreReferences, logger, weavedMethods);
         }
 
-        private static void InjectThrottleMethod(MethodDefinition method, ThrottleParameters throttleParameters, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
+        private static void InjectThrottleMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
             var classDefinition = method.DeclaringType;
+            var moduleDefinition = method.Module;
 
-            var throttleImplementationType = throttleParameters.Implementation;
+            var throttleImplementationTypeReference = throttleParameters.Implementation;
+            var throttleImplementationTypeDefinition = throttleImplementationTypeReference.Resolve();
+            throttleImplementationTypeReference = moduleDefinition.ImportReference(throttleImplementationTypeDefinition);
+
             var throttleTickMethodName = throttleParameters.MethodName ?? "Tick";
 
-            var throttleTickMethod = throttleImplementationType.Methods.FirstOrDefault(m => m.IsPublic && m.Name == throttleTickMethodName);
-            if (throttleTickMethod == null)
+            var methodReference = throttleImplementationTypeDefinition.Methods.FirstOrDefault(m => m.IsPublic && m.Name == throttleTickMethodName && !m.Parameters.Any() && m.ReturnType.FullName == "System.Void");
+            if (methodReference == null)
             {
-                logger.LogError($"The type {throttleImplementationType} does not have a public method {throttleTickMethodName}.");
+                logger.LogError($"The type {throttleImplementationTypeDefinition} does not have a public method 'void {throttleTickMethodName}()'.", symbolReader.GetEntryPoint(method));
                 return;
             }
 
-            if (throttleTickMethod.Parameters.Any() || (throttleTickMethod.ReturnType.FullName != "System.Void"))
-            {
-                logger.LogError($"The method {throttleTickMethod} must have the 'void MethodName()' signature.");
-                return;
-            }
-
+            var throttleTickMethodReference = moduleDefinition.ImportReference(methodReference);
             var threshold = throttleParameters.Threshold.GetValueOrDefault();
 
             var requiredParameterCount = ((threshold > 0) ? 2 : 1);
 
-            var throttleImplementationConstructor = throttleImplementationType.GetConstructors().FirstOrDefault(c => c.Parameters.Count == requiredParameterCount);
+            var throttleImplementationConstructor = moduleDefinition.ImportReference(throttleImplementationTypeDefinition.GetConstructors().FirstOrDefault(c => c.Parameters.Count == requiredParameterCount));
             if (throttleImplementationConstructor == null)
             {
-                logger.LogError($"{throttleImplementationType} does not have a constructor with {requiredParameterCount} parameters.");
+                logger.LogError($"{throttleImplementationTypeDefinition} does not have a constructor with {requiredParameterCount} parameters.", symbolReader.GetEntryPoint(method));
                 return;
             }
 
             var delegateParameter = throttleImplementationConstructor.Parameters.FirstOrDefault(p => p.ParameterType.IsActionOrDelegate());
             if (delegateParameter == null)
             {
-                logger.LogError($"{throttleImplementationConstructor} does not have a parameter of type System.Action or System.Delegate.");
+                logger.LogError($"{throttleImplementationConstructor} does not have a parameter of type System.Action or System.Delegate.", symbolReader.GetEntryPoint(method));
                 return;
             }
 
@@ -153,15 +157,17 @@ namespace Throttle.Fody
 
             if (requiredParameterCount == 2 && thresholdParamter == null)
             {
-                logger.LogError($"{throttleImplementationConstructor} does not have a parameter of type System.Int32 or System.TimeSpan to assign the threshold to.");
+                logger.LogError($"{throttleImplementationConstructor} does not have a parameter of type System.Int32 or System.TimeSpan to assign the threshold to.", symbolReader.GetEntryPoint(method));
                 return;
             }
 
-            var compareExchangeMethod = coreReferences.GenericCompareExchangeMethod.MakeGeneric(throttleImplementationType);
+            logger.LogInfo($"Weave throttle {throttleImplementationTypeDefinition.FullName} into {method.FullName}");
+
+            var compareExchangeMethod = coreReferences.GenericCompareExchangeMethod.MakeGeneric(throttleImplementationTypeReference);
 
             var originalMethodName = method.Name;
 
-            var throttleField = new FieldDefinition($"<{originalMethodName}>" + "_Throttle_Fody_BackingField", FieldAttributes.Private, throttleImplementationType);
+            var throttleField = new FieldDefinition($"<{originalMethodName}>" + "_Throttle_Fody_BackingField", FieldAttributes.Private, throttleImplementationTypeReference);
 
             classDefinition.Fields.Add(throttleField);
 
@@ -176,7 +182,7 @@ namespace Throttle.Fody
                 }
             };
 
-            newMethod.Body.Variables.AddRange(new VariableDefinition(throttleImplementationType), new VariableDefinition(throttleImplementationType));
+            newMethod.Body.Variables.AddRange(new VariableDefinition(throttleImplementationTypeReference), new VariableDefinition(throttleImplementationTypeReference));
 
             var jumpTarget = Instruction.Create(OpCodes.Ldloc_0);
 
@@ -213,7 +219,7 @@ namespace Throttle.Fody
                 Instruction.Create(OpCodes.Ldfld, throttleField),
                 Instruction.Create(OpCodes.Stloc_0),
                 jumpTarget, // Instruction.Create(OpCodes.Ldloc_0);
-                Instruction.Create(OpCodes.Callvirt, throttleTickMethod),
+                Instruction.Create(OpCodes.Callvirt, throttleTickMethodReference),
                 Instruction.Create(OpCodes.Ret));
 
             method.Name = throttledMethodName;

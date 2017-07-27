@@ -4,7 +4,7 @@ namespace Throttle.Fody
 {
     internal struct ThrottleParameters
     {
-        public TypeDefinition Implementation { get; private set; }
+        public TypeReference Implementation { get; private set; }
 
         public string MethodName { get; private set; }
 
@@ -12,7 +12,7 @@ namespace Throttle.Fody
 
         public void ReadFromAttribute(CustomAttribute attribute)
         {
-            Implementation = attribute.GetConstructorArgument<TypeDefinition>() ?? Implementation;
+            Implementation = attribute.GetConstructorArgument<TypeReference>() ?? Implementation;
             MethodName = attribute.GetConstructorArgument<string>() ?? MethodName;
             Threshold = attribute.GetConstructorArgument2<int>() ?? Threshold;
         }

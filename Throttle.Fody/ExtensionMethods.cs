@@ -2,6 +2,7 @@
 using System.Linq;
 
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 
 namespace Throttle.Fody
@@ -71,6 +72,16 @@ namespace Throttle.Fody
             return attribute?.ConstructorArguments?
                 .Select(arg => arg.Value as T?)
                 .FirstOrDefault(value => value != null);
+        }
+
+        public static SequencePoint GetEntryPoint(this ISymbolReader symbolReader, MethodDefinition method)
+        {
+            var instruction = method?.Body?.Instructions?.FirstOrDefault();
+
+            if (instruction == null)
+                return null;
+
+            return symbolReader?.Read(method)?.GetSequencePoint(instruction);
         }
     }
 }
