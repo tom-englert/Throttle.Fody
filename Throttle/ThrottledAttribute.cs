@@ -29,15 +29,6 @@ namespace Throttle
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Throttle.ThrottledAttribute"/> class
-        /// with implementation and threshold taken from the <see cref="ThrottleDefaultImplementationAttribute"/> and the <see cref="ThrottleDefaultThresholdAttribute"/>.
-        /// </summary>
-        /// <param name="methodName">Name of the method to call on the implementation to trigger the throttle.</param>
-        public ThrottledAttribute(string methodName)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Throttle.ThrottledAttribute"/> class
         /// with implementation and method taken from the <see cref="ThrottleDefaultImplementationAttribute"/>.
         /// </summary>
         /// <param name="threshold">The threshold.</param>
@@ -66,22 +57,12 @@ namespace Throttle
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Throttle.ThrottledAttribute"/> class
-        /// with implementation taken from the <see cref="ThrottleDefaultImplementationAttribute"/>.
-        /// </summary>
-        /// <param name="threshold">The threshold.</param>
-        /// <param name="methodName">Name of the method to call on the implementation to trigger the throttle.</param>
-        public ThrottledAttribute(int threshold, string methodName)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Throttle.ThrottledAttribute"/> class.
         /// </summary>
         /// <param name="implementation">The type of the throttle implementation.</param>
         /// <param name="threshold">The threshold.</param>
         /// <param name="methodName">Name of the method to call on the implementation to trigger the throttle.</param>
-        public ThrottledAttribute(Type implementation, int threshold, string methodName)
+        public ThrottledAttribute(Type implementation, string methodName, int threshold)
         {
         }
     }
