@@ -21,4 +21,8 @@
     <Compile Include="..\Version.cs" Link="Version.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+  </ItemGroup>
+
 </Project>
