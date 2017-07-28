@@ -42,16 +42,15 @@ namespace Tests
 
             File.Copy(OriginalAssemblyPath, NewAssemblyPath, true);
 
-            using (var moduleDefinition = ModuleDefinition.ReadModule(OriginalAssemblyPath))
-            {
-                var weavingTask = new ModuleWeaver
-                {
-                    ModuleDefinition = moduleDefinition
-                };
+            var moduleDefinition = ModuleDefinition.ReadModule(OriginalAssemblyPath);
 
-                weavingTask.Execute();
-                moduleDefinition.Write(NewAssemblyPath);
-            }
+            var weavingTask = new ModuleWeaver
+            {
+                ModuleDefinition = moduleDefinition
+            };
+
+            weavingTask.Execute();
+            moduleDefinition.Write(NewAssemblyPath);
 
             Assembly = Assembly.LoadFile(NewAssemblyPath);
         }

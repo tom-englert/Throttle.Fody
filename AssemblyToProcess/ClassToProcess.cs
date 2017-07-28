@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Windows.Threading;
 
 using Throttle;
 // ReSharper disable UnusedMember.Global
@@ -13,7 +14,7 @@ namespace AssemblyToProcess
     {
         public int NumberOfWithSimpeThrottleCalls { get; private set; }
 
-        [Throttle(typeof(Throttle1))]
+        [Throttled(typeof(Throttle1))]
         public void WithSimpleThrottle()
         {
             NumberOfWithSimpeThrottleCalls += 1;
@@ -21,7 +22,7 @@ namespace AssemblyToProcess
 
         public int NumberOfWithTimerThrottleCalls { get; private set; }
 
-        [Throttle(typeof(Throttle1), 20)]
+        [Throttled(typeof(Throttle1), 20)]
         public void WithTimerThrottle()
         {
             NumberOfWithTimerThrottleCalls += 1;
@@ -58,7 +59,7 @@ namespace AssemblyToProcess
     {
         public int NumberOfWithSimpeThrottleCalls { get; private set; }
 
-        [Throttle]
+        [Throttled]
         public void WithSimpleThrottle()
         {
             NumberOfWithSimpeThrottleCalls += 1;
@@ -66,7 +67,7 @@ namespace AssemblyToProcess
 
         public int NumberOfWithTimerThrottleCalls { get; private set; }
 
-        [Throttle(50)]
+        [Throttled(50)]
         public void WithTimerThrottle()
         {
             NumberOfWithTimerThrottleCalls += 1;
@@ -101,7 +102,7 @@ namespace AssemblyToProcess
     {
         public int NumberOfWithSimpeThrottleCalls { get; private set; }
 
-        [Throttle]
+        [Throttled]
         public void WithSimpleThrottle()
         {
             NumberOfWithSimpeThrottleCalls += 1;
@@ -109,7 +110,7 @@ namespace AssemblyToProcess
 
         public int NumberOfWithTimerThrottleCalls { get; private set; }
 
-        [Throttle(25)]
+        [Throttled(25)]
         public void WithTimerThrottle()
         {
             NumberOfWithTimerThrottleCalls += 1;
@@ -140,4 +141,47 @@ namespace AssemblyToProcess
         }
     }
 
+
+    public class ClassToProcess4
+    {
+        public int NumberOfWithSimpeThrottleCalls { get; private set; }
+
+        [Throttled(typeof(Throttle4))]
+        public void WithSimpleThrottle()
+        {
+            NumberOfWithSimpeThrottleCalls += 1;
+        }
+
+        public int NumberOfWithTimerThrottleCalls { get; private set; }
+
+        [Throttled(typeof(Throttle4), (int)DispatcherPriority.DataBind)]
+        public void WithTimerThrottle()
+        {
+            NumberOfWithTimerThrottleCalls += 1;
+        }
+    }
+
+    class Throttle4
+    {
+        private readonly Action _callback;
+        private readonly int _threshold;
+        private int _counter;
+
+        public Throttle4(Action callback)
+            : this(callback, DispatcherPriority.Normal)
+        {
+        }
+
+        public Throttle4(Action callback, DispatcherPriority threshold)
+        {
+            _callback = callback;
+            _threshold = (int)threshold;
+        }
+
+        public void Tick()
+        {
+            if ((++_counter % _threshold) == 0)
+                _callback?.Invoke();
+        }
+    }
 }

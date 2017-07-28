@@ -26,7 +26,13 @@ namespace Throttle.Fody
 
         public static bool IsIntOrTimeSpan(this TypeReference type)
         {
-            return type.FullName == typeof(System.Int32).FullName || type.FullName == typeof(System.TimeSpan).FullName;
+            if (!type.IsValueType)
+                return false;
+
+            if (type.FullName == typeof(System.Int32).FullName || type.FullName == typeof(System.TimeSpan).FullName)
+                return true;
+
+            return type.Resolve()?.BaseType.FullName == typeof(System.Enum).FullName;
         }
 
         public static AssemblyDefinition TryResolve(this IAssemblyResolver assemblyResolver, string assemlbyName)
@@ -83,5 +89,22 @@ namespace Throttle.Fody
 
             return symbolReader?.Read(method)?.GetSequencePoint(instruction);
         }
+
+        public static MethodReference Import(this MethodReference reference, ModuleDefinition module)
+        {
+            if (reference == null)
+                return null;
+
+            return module.ImportReference(reference);
+        }
+
+        public static TypeReference Import(this TypeReference reference, ModuleDefinition module)
+        {
+            if (reference == null)
+                return null;
+
+            return module.ImportReference(reference);
+        }
+
     }
 }

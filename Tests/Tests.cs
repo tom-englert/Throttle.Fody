@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading;
+using System.Windows.Threading;
 
 using NUnit.Framework;
 
@@ -47,6 +48,12 @@ class Throttle1
         _threshold = threshold;
     }
 
+    public Throttle1(Action callback, DispatcherPriority threshold)
+    {
+        _callback = callback;
+        _threshold = (int)threshold;
+    }
+
     public void Tick()
     {
         if ((++_counter % _threshold) == 0)
@@ -79,6 +86,7 @@ public class ThrottleTests
     [TestCase("ClassToProcess1", 10)]
     [TestCase("ClassToProcess2", 5)]
     [TestCase("ClassToProcess3", 15)]
+    [TestCase("ClassToProcess4", 9)]
     public void TestSimple(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithSimpleThrottle(), target => target.NumberOfWithSimpeThrottleCalls);
@@ -88,6 +96,7 @@ public class ThrottleTests
     [TestCase("ClassToProcess1", 20)]
     [TestCase("ClassToProcess2", 50)]
     [TestCase("ClassToProcess3", 25)]
+    [TestCase("ClassToProcess4", 8)]
     public void TestTimer(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithTimerThrottle(), target => target.NumberOfWithTimerThrottleCalls);

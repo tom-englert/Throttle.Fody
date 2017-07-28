@@ -49,7 +49,7 @@
     <Compile Include="..\Version.cs">
       <Link>Version.cs</Link>
     </Compile>
-    <Compile Include="ThrottleAttribute.cs" />
+    <Compile Include="ThrottledAttribute.cs" />
     <Compile Include="ThrottleDefaultImplementationAttribute.cs" />
     <Compile Include="ThrottleDefaultThresholdAttribute.cs" />
   </ItemGroup>

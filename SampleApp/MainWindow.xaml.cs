@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 using Throttle;
 
@@ -23,10 +26,19 @@ namespace SampleApp
             Test();
         }
 
-        [Throttle(typeof(DispatcherThrottle))]
-        public void Test()
+        [Throttled(typeof(DispatcherThrottle), (int)DispatcherPriority.Input)]
+        public async void Test()
         {
-            Title = $"Test{++_index}";
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            Title = $"Test {++_index}";
+        }
+
+        private async void Self_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            Title = "Test - Loaded";
         }
     }
 }
