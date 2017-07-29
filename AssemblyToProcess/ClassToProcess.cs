@@ -141,7 +141,6 @@ namespace AssemblyToProcess
         }
     }
 
-
     public class ClassToProcess4
     {
         public int NumberOfWithSimpeThrottleCalls { get; private set; }
@@ -184,4 +183,49 @@ namespace AssemblyToProcess
                 _callback?.Invoke();
         }
     }
+
+    public class ClassToProcess5
+    {
+        public int NumberOfWithSimpeThrottleCalls { get; private set; }
+
+        [Throttled]
+        public void WithSimpleThrottle()
+        {
+            NumberOfWithSimpeThrottleCalls += 1;
+        }
+
+        public int NumberOfWithThesholdThrottleCalls { get; private set; }
+
+        [Throttled(25)]
+        public void WithThesholdThrottle()
+        {
+            NumberOfWithThesholdThrottleCalls += 1;
+        }
+    }
+
+    class Throttle5
+    {
+        private readonly Action _callback;
+        private readonly int _threshold;
+        private int _counter;
+
+        public Throttle5(Action callback)
+            : this(TimeSpan.FromMilliseconds(15), callback)
+        {
+        }
+
+        public Throttle5(TimeSpan threshold, Action callback)
+        {
+            _callback = callback;
+            _threshold = (int)threshold.TotalMilliseconds;
+        }
+
+        public void Tick()
+        {
+            if ((++_counter % _threshold) == 0)
+                _callback?.Invoke();
+        }
+    }
+
+
 }

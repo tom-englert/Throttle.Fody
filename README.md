@@ -113,3 +113,4 @@ You can easily write your own throttle implementation or use any existing one. T
 - It must have a public void method without parameters that is called whenever the wrapper method is called. The name of this method 
   can be configured via the attributes, the default name is "Tick".
   
+See the [Test classes](https://github.com/tom-englert/Throttle.Fody/blob/master/AssemblyToProcess/ClassToProcess.cs) for some basic throttle implementations.

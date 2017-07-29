@@ -87,6 +87,7 @@ public class ThrottleTests
     [TestCase("ClassToProcess2", 5)]
     [TestCase("ClassToProcess3", 15)]
     [TestCase("ClassToProcess4", 9)]
+    [TestCase("ClassToProcess5", 15)]
     public void TestSimple(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithSimpleThrottle(), target => target.NumberOfWithSimpeThrottleCalls);
@@ -97,6 +98,7 @@ public class ThrottleTests
     [TestCase("ClassToProcess2", 50)]
     [TestCase("ClassToProcess3", 25)]
     [TestCase("ClassToProcess4", 8)]
+    [TestCase("ClassToProcess5", 25)]
     public void TestTimer(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithThesholdThrottle(), target => target.NumberOfWithThesholdThrottleCalls);
