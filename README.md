@@ -108,17 +108,17 @@ Of course you can mix anything of the above. Any parameter can be overwritten at
  
 
 
-### Writing/using you own throttle implementation
+### Writing/using your own throttle implementation
 
 You can easily write your own throttle implementation or use any existing one. The requirements for a throttle class are:
 
-- It must have a public constructor with at least a `System.Action` (or `SystemDelegate`) parameter. 
+- It must have a public constructor with at least a `System.Action` (or `System.Delegate`) parameter. 
   The original method will be passed as this delegate, so the implementation can call it 
   whenever it decides that the throttle threshold is reached.
 - The constructor optionally may have a second parameter that takes the threshold. 
   It can be a `System.Int32`, a `System.TimeSpan` or any `System.Enum`. If the parameter is of type `System.TimeSpan`, 
   the attributes integer value is interpreted as milliseconds. The order of the parameters does not matter.
 - It must have a public void method without parameters that is called whenever the wrapper method is called. The name of this method 
-  can be configured via the attributes, the default name is "Tick".
+  can be configured via the attributes; the default name is "Tick".
   
 See the [Test classes](https://github.com/tom-englert/Throttle.Fody/blob/master/AssemblyToProcess/ClassToProcess.cs) for some basic throttle implementations and usage samples.
