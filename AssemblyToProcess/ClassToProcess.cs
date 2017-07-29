@@ -20,12 +20,12 @@ namespace AssemblyToProcess
             NumberOfWithSimpeThrottleCalls += 1;
         }
 
-        public int NumberOfWithTimerThrottleCalls { get; private set; }
+        public int NumberOfWithThesholdThrottleCalls { get; private set; }
 
         [Throttled(typeof(Throttle1), 20)]
-        public void WithTimerThrottle()
+        public void WithThesholdThrottle()
         {
-            NumberOfWithTimerThrottleCalls += 1;
+            NumberOfWithThesholdThrottleCalls += 1;
         }
     }
 
@@ -65,12 +65,12 @@ namespace AssemblyToProcess
             NumberOfWithSimpeThrottleCalls += 1;
         }
 
-        public int NumberOfWithTimerThrottleCalls { get; private set; }
+        public int NumberOfWithThesholdThrottleCalls { get; private set; }
 
         [Throttled(50)]
-        public void WithTimerThrottle()
+        public void WithThesholdThrottle()
         {
-            NumberOfWithTimerThrottleCalls += 1;
+            NumberOfWithThesholdThrottleCalls += 1;
         }
     }
 
@@ -108,12 +108,12 @@ namespace AssemblyToProcess
             NumberOfWithSimpeThrottleCalls += 1;
         }
 
-        public int NumberOfWithTimerThrottleCalls { get; private set; }
+        public int NumberOfWithThesholdThrottleCalls { get; private set; }
 
         [Throttled(25)]
-        public void WithTimerThrottle()
+        public void WithThesholdThrottle()
         {
-            NumberOfWithTimerThrottleCalls += 1;
+            NumberOfWithThesholdThrottleCalls += 1;
         }
     }
 
@@ -152,12 +152,12 @@ namespace AssemblyToProcess
             NumberOfWithSimpeThrottleCalls += 1;
         }
 
-        public int NumberOfWithTimerThrottleCalls { get; private set; }
+        public int NumberOfWithThesholdThrottleCalls { get; private set; }
 
         [Throttled(typeof(Throttle4), (int)DispatcherPriority.DataBind)]
-        public void WithTimerThrottle()
+        public void WithThesholdThrottle()
         {
-            NumberOfWithTimerThrottleCalls += 1;
+            NumberOfWithThesholdThrottleCalls += 1;
         }
     }
 
