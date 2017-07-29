@@ -99,7 +99,7 @@ public class ThrottleTests
     [TestCase("ClassToProcess3", 25)]
     [TestCase("ClassToProcess4", 8)]
     [TestCase("ClassToProcess5", 25)]
-    public void TestTimer(string className, int throttleTreshold)
+    public void TestThreshold(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithThesholdThrottle(), target => target.NumberOfWithThesholdThrottleCalls);
     }
