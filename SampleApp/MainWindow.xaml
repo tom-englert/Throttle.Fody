@@ -3,9 +3,38 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        Loaded="Self_Loaded"
-        Title="Test" Height="350" Width="525">
-    <Grid>
-        
+        xmlns:sampleApp="clr-namespace:SampleApp"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        Title="Test" Height="450" Width="525">
+  <Window.DataContext>
+    <sampleApp:MainViewModel />
+  </Window.DataContext>
+
+  <DockPanel Margin="5">
+    <Grid DockPanel.Dock="Top" Margin="5" >
+      <TextBlock x:Name="Hint" Text=" Type some text..." Foreground="Gainsboro" VerticalAlignment="Center" />
+      <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent">
+        <i:Interaction.Triggers>
+          <ei:DataTrigger Binding="{Binding Text}" Value="" Comparison="NotEqual">
+            <ei:ChangePropertyAction TargetName="Hint" PropertyName="Visibility" Value="Hidden" />
+          </ei:DataTrigger>
+        </i:Interaction.Triggers>
+      </TextBox>
     </Grid>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition />
+        <ColumnDefinition Width="2*" />
+      </Grid.ColumnDefinitions>
+      <ListBox Grid.Column="0" ItemsSource="{Binding Items}" Margin="5" />
+      <ListBox Grid.Column="1" ItemsSource="{Binding Events}" Margin="5" />
+    </Grid>
+  </DockPanel>
+
+  <i:Interaction.Triggers>
+    <i:EventTrigger EventName="Loaded">
+      <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+    </i:EventTrigger>
+  </i:Interaction.Triggers>
 </Window>
