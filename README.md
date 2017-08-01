@@ -44,7 +44,7 @@ public class Class
         if (throttle == null)
         {
             Interlocked.CompareExchange(ref <Refresh>_throttle_field, new DispatcherThrottle(<Refresh>_throttled_method), null);
-            throttle = _throttle;
+            throttle = <Refresh>_throttle_field;
         }
         throttle.Tick();
     }
