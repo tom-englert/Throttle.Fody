@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+
+using JetBrains.Annotations;
 
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -106,5 +109,10 @@ namespace Throttle.Fody
             return module.ImportReference(reference);
         }
 
+        [NotNull]
+        public static MethodDefinition FindMethod([NotNull] this TypeDefinition type, [NotNull] string name, [NotNull, ItemNotNull] params Type[] parameters)
+        {
+            return type.Methods.First(x => (x.Name == name) && x.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(parameters.Select(p => p.FullName)));
+        }
     }
 }

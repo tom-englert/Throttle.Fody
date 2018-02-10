@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using JetBrains.Annotations;
+
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -10,9 +12,9 @@ namespace Throttle.Fody
 {
     internal static class Processor
     {
-        internal static void Process(this ModuleDefinition moduleDefinition, ILogger logger)
+        internal static void Process([NotNull] this ModuleDefinition moduleDefinition, [NotNull] ILogger logger)
         {
-            var coreReferences = new CoreReferences(moduleDefinition);
+            var coreReferences = new SystemReferences(moduleDefinition, moduleDefinition.AssemblyResolver);
 
             var throttleParameters = new ThrottleParameters();
             throttleParameters.ReadDefaults(moduleDefinition.Assembly);
@@ -77,7 +79,7 @@ namespace Throttle.Fody
             }
         }
 
-        private static void ProcessClass(TypeDefinition classDefinition, ThrottleParameters throttleParameters, ISymbolReader symbolReader, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
+        private static void ProcessClass(TypeDefinition classDefinition, ThrottleParameters throttleParameters, ISymbolReader symbolReader, SystemReferences systemReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
             throttleParameters.ReadDefaults(classDefinition);
 
@@ -87,11 +89,11 @@ namespace Throttle.Fody
 
             foreach (var method in allMethods)
             {
-                ProcessMethod(method, throttleParameters, symbolReader, coreReferences, logger, weavedMethods);
+                ProcessMethod(method, throttleParameters, symbolReader, systemReferences, logger, weavedMethods);
             }
         }
 
-        private static void ProcessMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
+        private static void ProcessMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, SystemReferences systemReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
             var throttledAttribute = method
                 .GetAttribute("Throttle.ThrottledAttribute");
@@ -114,10 +116,10 @@ namespace Throttle.Fody
                 return;
             }
 
-            InjectThrottleMethod(method, throttleParameters, symbolReader, coreReferences, logger, weavedMethods);
+            InjectThrottleMethod(method, throttleParameters, symbolReader, systemReferences, logger, weavedMethods);
         }
 
-        private static void InjectThrottleMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, CoreReferences coreReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
+        private static void InjectThrottleMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, SystemReferences systemReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
             var classDefinition = method.DeclaringType;
             var moduleDefinition = method.Module;
@@ -172,7 +174,7 @@ namespace Throttle.Fody
 
             logger.LogInfo($"Weave throttle {implementationTypeDefinition.FullName} into {method.FullName}");
 
-            var compareExchangeMethod = coreReferences.GenericCompareExchangeMethod.MakeGeneric(implementationTypeReference);
+            var compareExchangeMethod = systemReferences.GenericCompareExchangeMethod.MakeGeneric(implementationTypeReference);
 
             var originalMethodName = method.Name;
 
@@ -205,15 +207,15 @@ namespace Throttle.Fody
                 Instruction.Create(OpCodes.Brtrue_S, jumpTarget));
 
             if (thresholdParameterIndex == 0)
-                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, coreReferences);
+                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, systemReferences);
 
             instructions.AddRange(
                 Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldftn, method),
-                Instruction.Create(OpCodes.Newobj, coreReferences.ActionConstructorReference));
+                Instruction.Create(OpCodes.Newobj, systemReferences.ActionConstructorReference));
 
             if (thresholdParameterIndex == 1)
-                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, coreReferences);
+                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, systemReferences);
 
             instructions.AddRange(
                 Instruction.Create(OpCodes.Newobj, implementationConstructor),
@@ -239,12 +241,12 @@ namespace Throttle.Fody
             weavedMethods[method] = newMethod;
         }
 
-        private static void AddThresholdParameter(Collection<Instruction> instructions, int threshold, TypeReference parameterType, CoreReferences coreReferences)
+        private static void AddThresholdParameter(Collection<Instruction> instructions, int threshold, TypeReference parameterType, SystemReferences systemReferences)
         {
             if (parameterType.FullName == typeof(System.TimeSpan).FullName)
             {
                 instructions.Add(Instruction.Create(OpCodes.Ldc_R8, (double) threshold));
-                instructions.Add(Instruction.Create(OpCodes.Call, coreReferences.TimeSpanFromMilisecondsReference));
+                instructions.Add(Instruction.Create(OpCodes.Call, systemReferences.TimeSpanFromMilisecondsReference));
             }
             else
             {

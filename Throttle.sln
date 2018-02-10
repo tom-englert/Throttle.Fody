@@ -1,18 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Throttle.Fody", "Throttle.Fody\Throttle.Fody.csproj", "{9AF0FE45-9667-4033-93A5-799846B1A19A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Throttle.Fody", "Throttle.Fody\Throttle.Fody.csproj", "{9AF0FE45-9667-4033-93A5-799846B1A19A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B3C4B812-EFBB-4261-BF94-7BFC57CFAA9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{B3C4B812-EFBB-4261-BF94-7BFC57CFAA9F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nuget", "NuGet\Nuget.csproj", "{878E96F1-3F27-4969-AC21-A66C7FA1ADF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9AF0FE45-9667-4033-93A5-799846B1A19A} = {9AF0FE45-9667-4033-93A5-799846B1A19A}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToProcess", "AssemblyToProcess\AssemblyToProcess.csproj", "{270EBFBC-0421-4522-AA40-84D66238A19F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssemblyToProcess", "AssemblyToProcess\AssemblyToProcess.csproj", "{270EBFBC-0421-4522-AA40-84D66238A19F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Throttle", "Throttle\Throttle.csproj", "{88856D9C-8C44-4F9C-8B3D-6C29CCC7B08E}"
 EndProject
@@ -21,9 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Throttle.portable", "Throttle\Throttle.portable.csproj", "{59ACF1B9-0CB8-4673-9E00-E742E2616959}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{0A0B9A80-A37A-475E-9006-6AA459545110}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetStandardSmokeTest", "NetStandardSmokeTest\NetStandardSmokeTest.csproj", "{BC87B120-F25E-4E23-888A-7B74B130FC83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,16 +51,19 @@ Global
 		{88856D9C-8C44-4F9C-8B3D-6C29CCC7B08E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88856D9C-8C44-4F9C-8B3D-6C29CCC7B08E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88856D9C-8C44-4F9C-8B3D-6C29CCC7B08E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59ACF1B9-0CB8-4673-9E00-E742E2616959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59ACF1B9-0CB8-4673-9E00-E742E2616959}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59ACF1B9-0CB8-4673-9E00-E742E2616959}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59ACF1B9-0CB8-4673-9E00-E742E2616959}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A0B9A80-A37A-475E-9006-6AA459545110}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0A0B9A80-A37A-475E-9006-6AA459545110}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A0B9A80-A37A-475E-9006-6AA459545110}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A0B9A80-A37A-475E-9006-6AA459545110}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC87B120-F25E-4E23-888A-7B74B130FC83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC87B120-F25E-4E23-888A-7B74B130FC83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC87B120-F25E-4E23-888A-7B74B130FC83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC87B120-F25E-4E23-888A-7B74B130FC83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA3FC3D1-4829-404D-8A78-FE4CB9859E52}
 	EndGlobalSection
 EndGlobal

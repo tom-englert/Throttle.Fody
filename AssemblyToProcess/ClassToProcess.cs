@@ -5,7 +5,7 @@ using System.Windows.Threading;
 using Throttle;
 // ReSharper disable UnusedMember.Global
 
-[assembly:AssemblyVersion("0.0.1.*")]
+[assembly:AssemblyVersion("0.0.1.1")]
 [assembly: ThrottleDefaultImplementation(typeof(AssemblyToProcess.Throttle3))]
 
 namespace AssemblyToProcess

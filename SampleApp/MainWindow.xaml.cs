@@ -1,13 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
-
-using Throttle;
-
-using TomsToolbox.Desktop;
-
-namespace SampleApp
+﻿namespace SampleApp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

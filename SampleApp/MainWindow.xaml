@@ -12,7 +12,7 @@
   </Window.DataContext>
 
   <DockPanel Margin="5">
-    <Grid DockPanel.Dock="Top" Margin="5" >
+    <Grid DockPanel.Dock="Top" Margin="5">
       <TextBlock x:Name="Hint" Text=" Type some text..." Foreground="Gainsboro" VerticalAlignment="Center" />
       <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent">
         <i:Interaction.Triggers>
