@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="2.4.1" />
+    <PackageReference Include="Fody" Version="3.0.0" />
     <PackageReference Include="Throttle.Fody" Version="0.9.11" />
   </ItemGroup>
 

@@ -7,7 +7,7 @@
     <ProjectReference Include="..\Throttle\Throttle.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FodyCecil" Version="2.4.1">
+    <PackageReference Include="FodyHelpers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
