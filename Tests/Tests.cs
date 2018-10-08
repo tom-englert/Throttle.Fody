@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Threading;
-
-using NUnit.Framework;
-
 using Tests;
+
+using Xunit;
 
 public class ClassToProcess
 {
@@ -48,11 +46,13 @@ class Throttle1
         _threshold = threshold;
     }
 
-    public Throttle1(Action callback, DispatcherPriority threshold)
+    #if !NETCOREAPP
+    public Throttle1(Action callback, System.Windows.Threading.DispatcherPriority threshold)
     {
         _callback = callback;
         _threshold = (int)threshold;
     }
+    #endif
 
     public void Tick()
     {
@@ -65,7 +65,7 @@ public class ThrottleTests
 {
     readonly Assembly _assembly = WeaverHelper.Create().Assembly;
 
-    [Test]
+    [Fact]
     public void ReferenceTest()
     {
         var target = new ClassToProcess();
@@ -74,31 +74,35 @@ public class ThrottleTests
         {
             for (var i = 0; i < 10; i++)
             {
-                Assert.AreEqual(outer, target.NumberOfWithSimpeThrottleCalls);
+                Assert.Equal(outer, target.NumberOfWithSimpeThrottleCalls);
                 target.WithSimpleThrottle();
             }
 
-            Assert.AreEqual(outer + 1, target.NumberOfWithSimpeThrottleCalls);
+            Assert.Equal(outer + 1, target.NumberOfWithSimpeThrottleCalls);
         }
     }
 
-    [Test]
-    [TestCase("ClassToProcess1", 10)]
-    [TestCase("ClassToProcess2", 5)]
-    [TestCase("ClassToProcess3", 15)]
-    [TestCase("ClassToProcess4", 9)]
-    [TestCase("ClassToProcess5", 15)]
+    [Theory]
+    [InlineData("ClassToProcess1", 10)]
+    [InlineData("ClassToProcess2", 5)]
+    [InlineData("ClassToProcess3", 15)]
+#if !NETCOREAPP
+    [InlineData("ClassToProcess4", 9)]
+#endif
+    [InlineData("ClassToProcess5", 15)]
     public void TestSimple(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithSimpleThrottle(), target => target.NumberOfWithSimpeThrottleCalls);
     }
 
-    [Test]
-    [TestCase("ClassToProcess1", 20)]
-    [TestCase("ClassToProcess2", 50)]
-    [TestCase("ClassToProcess3", 25)]
-    [TestCase("ClassToProcess4", 8)]
-    [TestCase("ClassToProcess5", 25)]
+    [Theory]
+    [InlineData("ClassToProcess1", 20)]
+    [InlineData("ClassToProcess2", 50)]
+    [InlineData("ClassToProcess3", 25)]
+#if !NETCOREAPP
+    [InlineData("ClassToProcess4", 8)]
+#endif
+    [InlineData("ClassToProcess5", 25)]
     public void TestThreshold(string className, int throttleTreshold)
     {
         Test(className, throttleTreshold, target => target.WithThesholdThrottle(), target => target.NumberOfWithThesholdThrottleCalls);
@@ -112,11 +116,11 @@ public class ThrottleTests
         {
             for (var i = 0; i < throttleTreshold; i++)
             {
-                Assert.AreEqual(outer, numberOfCalls(target));
+                Assert.Equal(outer, numberOfCalls(target));
                 method(target);
             }
 
-            Assert.AreEqual(outer + 1, numberOfCalls(target));
+            Assert.Equal(outer + 1, numberOfCalls(target));
         }
     }
 }

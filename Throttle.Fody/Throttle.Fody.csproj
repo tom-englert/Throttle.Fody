@@ -1,27 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFrameworks>net46;netstandard2.0</TargetFrameworks>
     <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="3.0.0">
+    <PackageReference Include="FodyHelpers" Version="3.2.9">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Trademark.cs">
-      <Link>Trademark.cs</Link>
-    </Compile>
-    <Compile Include="..\Version.cs">
-      <Link>Version.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <Target Name="Postbuild" AfterTargets="Build">
-    <Message Text="Test" />
+  <Target Name="Postbuild" AfterTargets="Build" Condition="$(TargetFramework)=='net46'">
     <MakeDir Directories="$(SolutionDir)Tools" />
-    <Copy SourceFiles="$(TargetDir)Throttle.Fody.dll" DestinationFolder="$(SolutionDir)Tools" />
-    <Copy SourceFiles="$(TargetDir)Throttle.Fody.pdb" DestinationFolder="$(SolutionDir)Tools" />
+    <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(SolutionDir)Tools" />
+    <Copy SourceFiles="$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(SolutionDir)Tools" />
   </Target>
 </Project>

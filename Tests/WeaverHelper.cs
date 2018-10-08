@@ -1,58 +1,41 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Reflection;
 
-using Mono.Cecil;
+using Fody;
 
-using NUnit.Framework;
+using JetBrains.Annotations;
+
+using Mono.Cecil;
 
 using TomsToolbox.Core;
 
 namespace Tests
 {
-    internal class WeaverHelper
+    internal class WeaverHelper : DefaultAssemblyResolver
     {
+        [NotNull]
         private static readonly Dictionary<string, WeaverHelper> _cache = new Dictionary<string, WeaverHelper>();
 
-        public Assembly Assembly { get; }
-        public string NewAssemblyPath { get; }
-        public string OriginalAssemblyPath { get; }
+        [NotNull]
+        private readonly TestResult _testResult;
 
-#if (!DEBUG)
-        private const string Configuration = "Release";
-#else
-        private const string Configuration = "Debug";
-#endif
+        [NotNull]
+        public Assembly Assembly => _testResult.Assembly;
 
-        public static WeaverHelper Create(string assemblyName = "AssemblyToProcess")
+        [NotNull]
+        public static WeaverHelper Create([NotNull] string assemblyName = "AssemblyToProcess")
         {
             lock (typeof(WeaverHelper))
             {
+                // ReSharper disable once AssignNullToNotNullAttribute
                 return _cache.ForceValue(assemblyName, _ => new WeaverHelper(assemblyName));
             }
         }
 
-        private WeaverHelper(string assemblyName)
+        private WeaverHelper([NotNull] string assemblyName)
         {
-            var projectDir = Path.GetFullPath(Path.Combine(TestContext.CurrentContext.TestDirectory, $@"..\..\..\..\{assemblyName}"));
-            var binaryDir = Path.Combine(projectDir, $@"bin\{Configuration}\Net46");
-            OriginalAssemblyPath = Path.Combine(binaryDir, $@"{assemblyName}.dll");
-
-            NewAssemblyPath = OriginalAssemblyPath.Replace(".dll", "2.dll");
-
-            File.Copy(OriginalAssemblyPath, NewAssemblyPath, true);
-
-            var moduleDefinition = ModuleDefinition.ReadModule(OriginalAssemblyPath);
-
-            var weavingTask = new ModuleWeaver
-            {
-                ModuleDefinition = moduleDefinition
-            };
-
-            weavingTask.Execute();
-            moduleDefinition.Write(NewAssemblyPath);
-
-            Assembly = Assembly.LoadFile(NewAssemblyPath);
+            _testResult = new ModuleWeaver().ExecuteTestRun(assemblyName + ".dll", true, null, null, null, new[] { "0x80131869" });
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Windows.Threading;
 
 using Throttle;
 // ReSharper disable UnusedMember.Global
@@ -141,6 +140,7 @@ namespace AssemblyToProcess
         }
     }
 
+#if !NETSTANDARD
     public class ClassToProcess4
     {
         public int NumberOfWithSimpeThrottleCalls { get; private set; }
@@ -153,7 +153,7 @@ namespace AssemblyToProcess
 
         public int NumberOfWithThesholdThrottleCalls { get; private set; }
 
-        [Throttled(typeof(Throttle4), (int)DispatcherPriority.DataBind)]
+        [Throttled(typeof(Throttle4), (int)System.Windows.Threading.DispatcherPriority.DataBind)]
         public void WithThesholdThrottle()
         {
             NumberOfWithThesholdThrottleCalls += 1;
@@ -167,11 +167,11 @@ namespace AssemblyToProcess
         private int _counter;
 
         public Throttle4(Action callback)
-            : this(callback, DispatcherPriority.Normal)
+            : this(callback, System.Windows.Threading.DispatcherPriority.Normal)
         {
         }
 
-        public Throttle4(Action callback, DispatcherPriority threshold)
+        public Throttle4(Action callback, System.Windows.Threading.DispatcherPriority threshold)
         {
             _callback = callback;
             _threshold = (int)threshold;
@@ -183,6 +183,7 @@ namespace AssemblyToProcess
                 _callback?.Invoke();
         }
     }
+    #endif
 
     public class ClassToProcess5
     {

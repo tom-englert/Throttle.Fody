@@ -13,7 +13,7 @@ namespace SampleApp
         {
             base.OnStartup(e);
 
-            Resources.MergedDictionaries.Insert(0, WpfStyles.Defaults());
+            Resources.MergedDictionaries.Insert(0, WpfStyles.GetDefaultStyles());
         }
     }
 }

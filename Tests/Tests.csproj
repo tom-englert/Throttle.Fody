@@ -1,27 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFrameworks>net46;netcoreapp2.1</TargetFrameworks>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DisableFody>true</DisableFody>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AssemblyToProcess\AssemblyToProcess.csproj" />
     <ProjectReference Include="..\Throttle.Fody\Throttle.Fody.csproj" />
     <ProjectReference Include="..\Throttle\Throttle.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="3.0.0">
+    <PackageReference Include="FodyHelpers" Version="3.2.9">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="NUnit" Version="3.7.1" />
-    <PackageReference Include="TomsToolbox.Core" Version="1.0.64" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="TomsToolbox.Core" Version="1.0.74" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
     <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 </Project>
