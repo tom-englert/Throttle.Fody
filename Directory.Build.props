@@ -6,7 +6,7 @@
     <Company>tom-englert.de</Company>
     <Copyright>Copyright © tom-englert.de 2017-2018. Distributed under the MIT License.</Copyright>
     <Product>Throttle.Fody</Product>
-    <Version>1.2</Version>
+    <Version>1.3</Version>
     <PackageTags>ILWeaving, Fody, Cecil, Throttle</PackageTags>
     <Description>Injects code do to easily use throttles. Simply add the Throttled attribute to a method to wire up everything.</Description>
     <PackageLicenseUrl>https://raw.github.com/tom-englert/Throttle.Fody/master/LICENSE</PackageLicenseUrl>
