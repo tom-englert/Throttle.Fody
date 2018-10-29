@@ -12,13 +12,8 @@
     <PackageLicenseUrl>https://raw.github.com/tom-englert/Throttle.Fody/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/tom-englert/Throttle.Fody</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/tom-englert/Throttle.Fody/master/Icon.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/tom-englert/Throttle.Fody.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageOutputPath>$(SolutionDir)Deploy</PackageOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <LanguageTargets>$(MSBuildExtensionsPath)\$(VisualStudioVersion)\Bin\Microsoft.CSharp.targets</LanguageTargets>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40-client'">
@@ -40,8 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="*" PrivateAssets="All" />
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="*" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
