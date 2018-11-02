@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Copyright>Copyright © tom-englert.de 2017-2018. Distributed under the MIT License.</Copyright>
     <Product>Throttle.Fody</Product>
-    <Version>1.2</Version>
+    <Version>1.4</Version>
     <Description>Injects code do to easily use throttles. Simply add the Throttled attribute to a method to wire up everything.</Description>
   </PropertyGroup>
 
