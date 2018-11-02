@@ -1,5 +1,5 @@
- ![badge](https://tom-englert.visualstudio.com/_apis/public/build/definitions/75bf84d2-d359-404a-a712-07c9f693f635/13/badge) [![NuGet Status](http://img.shields.io/nuget/v/Throttle.Fody.svg?style=flat-square)](https://www.nuget.org/packages/Throttle.Fody)
- 
+[![Build status](https://ci.appveyor.com/api/projects/status/lsjxn5yyp0mrmxiy?svg=true)](https://ci.appveyor.com/project/tom-englert/throttle-fody) [![NuGet Status](http://img.shields.io/nuget/v/Throttle.Fody.svg?style=flat-square)](https://www.nuget.org/packages/Throttle.Fody)
+
  ![Icon](Icon.png)
 
 Injects code do to easily use throttles. Simply add the `Throttled` attribute to a method to wire up everything.
