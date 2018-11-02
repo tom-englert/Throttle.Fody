@@ -5,8 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="3.0.0" />
-    <PackageReference Include="Throttle.Fody" Version="0.9.11" />
+    <PackageReference Include="Fody" Version="3.2.16">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Throttle\Throttle.csproj" />
   </ItemGroup>
 
 </Project>
