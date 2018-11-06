@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\FodyTools\FodyTools\AbstractModuleWeaver.cs" Link="AbstractModuleWeaver.cs" />
+    <Compile Include="..\FodyTools\FodyTools\TypeSystemExtensionMethods.cs" Link="TypeSystemExtensionMethods.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="3.2.16" />
   </ItemGroup>
 

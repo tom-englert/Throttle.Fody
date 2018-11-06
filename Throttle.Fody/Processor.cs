@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
+using FodyTools;
 using JetBrains.Annotations;
 
 using Mono.Cecil;
@@ -12,11 +12,10 @@ namespace Throttle.Fody
 {
     internal static class Processor
     {
-        internal static void Process([NotNull] this ModuleDefinition moduleDefinition, [NotNull] ILogger logger)
+        internal static void Process([NotNull] this ModuleDefinition moduleDefinition, [NotNull] ILogger logger, [NotNull] SystemReferences coreReferences)
         {
-            var coreReferences = new SystemReferences(moduleDefinition, moduleDefinition.AssemblyResolver);
-
             var throttleParameters = new ThrottleParameters();
+
             throttleParameters.ConsumeDefaultAttributes(moduleDefinition.Assembly);
 
             var allTypes = moduleDefinition.GetTypes();
@@ -240,7 +239,7 @@ namespace Throttle.Fody
             if (parameterType.FullName == typeof(System.TimeSpan).FullName)
             {
                 instructions.Add(Instruction.Create(OpCodes.Ldc_R8, (double) threshold));
-                instructions.Add(Instruction.Create(OpCodes.Call, systemReferences.TimeSpanFromMilisecondsReference));
+                instructions.Add(Instruction.Create(OpCodes.Call, systemReferences.TimeSpanFromMillisecondsReference));
             }
             else
             {
