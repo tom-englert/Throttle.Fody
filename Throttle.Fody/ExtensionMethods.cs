@@ -92,6 +92,5 @@
 
             return module.ImportReference(reference);
         }
-
     }
 }
