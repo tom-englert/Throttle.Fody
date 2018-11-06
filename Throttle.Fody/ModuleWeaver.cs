@@ -8,23 +8,17 @@ using Throttle.Fody;
 
 public class ModuleWeaver : BaseModuleWeaver, ILogger
 {
-    public ModuleWeaver()
-    {
-        // Initialize logging delegates to make testing easier
-        LogDebug = LogInfo = LogWarning = LogError = _ => { };
-        LogErrorPoint = (_, __) => { };
-    }
-
     public override void Execute()
     {
         ModuleDefinition.Process(this);
-        ModuleDefinition.RemoveReferences(this);
     }
 
     public override IEnumerable<string> GetAssembliesForScanning()
     {
         yield break;
     }
+
+    public override bool ShouldCleanReference => true;
 
     void ILogger.LogDebug(string message)
     {

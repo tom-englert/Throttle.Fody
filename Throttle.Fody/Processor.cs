@@ -17,7 +17,7 @@ namespace Throttle.Fody
             var coreReferences = new SystemReferences(moduleDefinition, moduleDefinition.AssemblyResolver);
 
             var throttleParameters = new ThrottleParameters();
-            throttleParameters.ReadDefaults(moduleDefinition.Assembly);
+            throttleParameters.ConsumeDefaultAttributes(moduleDefinition.Assembly);
 
             var allTypes = moduleDefinition.GetTypes();
 
@@ -81,7 +81,7 @@ namespace Throttle.Fody
 
         private static void ProcessClass(TypeDefinition classDefinition, ThrottleParameters throttleParameters, ISymbolReader symbolReader, SystemReferences systemReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
-            throttleParameters.ReadDefaults(classDefinition);
+            throttleParameters.ConsumeDefaultAttributes(classDefinition);
 
             var allMethods = classDefinition.Methods
                 .Where(method => method.HasBody)
@@ -95,10 +95,7 @@ namespace Throttle.Fody
 
         private static void ProcessMethod(MethodDefinition method, ThrottleParameters throttleParameters, ISymbolReader symbolReader, SystemReferences systemReferences, ILogger logger, IDictionary<MethodDefinition, MethodDefinition> weavedMethods)
         {
-            var throttledAttribute = method
-                .GetAttribute("Throttle.ThrottledAttribute");
-
-            if (throttledAttribute == null)
+            if (!throttleParameters.ConsumeAttribute(method, "Throttle.ThrottledAttribute"))
                 return;
 
             if (method.Parameters.Any() || method.ReturnType.FullName != "System.Void")
@@ -106,9 +103,6 @@ namespace Throttle.Fody
                 logger.LogError($"Can't weave throttle into method {method}: It does not have the signature 'void {method.Name}()'.", symbolReader.GetEntryPoint(method));
                 return;
             }
-
-            throttleParameters.ReadFromAttribute(throttledAttribute);
-            method.CustomAttributes.Remove(throttledAttribute);
 
             if (throttleParameters.Implementation == null)
             {

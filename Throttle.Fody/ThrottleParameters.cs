@@ -1,4 +1,5 @@
-﻿using Mono.Cecil;
+﻿using JetBrains.Annotations;
+using Mono.Cecil;
 
 namespace Throttle.Fody
 {
@@ -10,17 +11,26 @@ namespace Throttle.Fody
 
         public int? Threshold { get; private set; }
 
-        public void ReadFromAttribute(CustomAttribute attribute)
+        public bool ConsumeAttribute([NotNull] ICustomAttributeProvider attributeProvider, [NotNull] string attributeName)
         {
+            var attribute = attributeProvider.GetAttribute(attributeName);
+
+            if (attribute == null)
+                return false;
+
             Implementation = attribute.GetConstructorArgument<TypeReference>() ?? Implementation;
             MethodName = attribute.GetConstructorArgument<string>() ?? MethodName;
             Threshold = attribute.GetConstructorArgument2<int>() ?? Threshold;
+
+            attributeProvider.CustomAttributes.Remove(attribute);
+
+            return true;
         }
 
-        public void ReadDefaults(ICustomAttributeProvider attributeProvider)
+        public void ConsumeDefaultAttributes([NotNull] ICustomAttributeProvider attributeProvider)
         {
-            ReadFromAttribute(attributeProvider.GetAttribute("Throttle.ThrottleDefaultImplementationAttribute"));
-            ReadFromAttribute(attributeProvider.GetAttribute("Throttle.ThrottleDefaultThresholdAttribute"));
+            ConsumeAttribute(attributeProvider, "Throttle.ThrottleDefaultImplementationAttribute");
+            ConsumeAttribute(attributeProvider, "Throttle.ThrottleDefaultThresholdAttribute");
         }
     }
 }
