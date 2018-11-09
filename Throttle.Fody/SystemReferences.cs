@@ -20,8 +20,8 @@ namespace Throttle.Fody
             ActionConstructorReference = weaver.ImportMethod<Action, object, IntPtr>(".ctor");
             TimeSpanFromMillisecondsReference = weaver.ImportMethod(() => TimeSpan.FromMilliseconds(default(double)));
 
-            var args = default(Type);
-            GenericCompareExchangeMethod = weaver.ImportMethod(() => System.Threading.Interlocked.CompareExchange(ref args, args, args));
+            var arg = default(Type);
+            GenericCompareExchangeMethod = weaver.ImportMethod(() => System.Threading.Interlocked.CompareExchange(ref arg, arg, arg));
         }
     }
 }
