@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using FodyTools;
+
 using Throttle.Fody;
 
 public class ModuleWeaver : AbstractModuleWeaver

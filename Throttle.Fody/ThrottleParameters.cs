@@ -1,8 +1,9 @@
-﻿using JetBrains.Annotations;
-using Mono.Cecil;
-
-namespace Throttle.Fody
+﻿namespace Throttle.Fody
 {
+    using JetBrains.Annotations;
+
+    using Mono.Cecil;
+
     internal struct ThrottleParameters
     {
         public TypeReference Implementation { get; private set; }

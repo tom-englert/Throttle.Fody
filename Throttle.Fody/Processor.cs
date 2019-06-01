@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FodyTools;
-using JetBrains.Annotations;
-
-using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
-using Mono.Collections.Generic;
-
-namespace Throttle.Fody
+﻿namespace Throttle.Fody
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using FodyTools;
+
+    using JetBrains.Annotations;
+
+    using Mono.Cecil;
+    using Mono.Cecil.Cil;
+    using Mono.Cecil.Rocks;
+    using Mono.Collections.Generic;
+
     internal static class Processor
     {
         internal static void Process([NotNull] this ModuleDefinition moduleDefinition, [NotNull] ILogger logger, [NotNull] SystemReferences coreReferences)
@@ -186,14 +188,13 @@ namespace Throttle.Fody
                 }
             };
 
-            newMethod.Body.Variables.AddRange(new VariableDefinition(implementationTypeReference), new VariableDefinition(implementationTypeReference));
+            ExtensionMethods.AddRange(newMethod.Body.Variables, new VariableDefinition(implementationTypeReference), new VariableDefinition(implementationTypeReference));
 
             var jumpTarget = Instruction.Create(OpCodes.Ldloc_0);
 
             var instructions = newMethod.Body.Instructions;
 
-            instructions.AddRange(
-                Instruction.Create(OpCodes.Ldarg_0),
+            ExtensionMethods.AddRange(instructions, Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldfld, throttleField),
                 Instruction.Create(OpCodes.Stloc_0),
                 Instruction.Create(OpCodes.Ldloc_0),
@@ -202,16 +203,14 @@ namespace Throttle.Fody
             if (thresholdParameterIndex == 0)
                 AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, systemReferences);
 
-            instructions.AddRange(
-                Instruction.Create(OpCodes.Ldarg_0),
+            ExtensionMethods.AddRange(instructions, Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldftn, method),
                 Instruction.Create(OpCodes.Newobj, systemReferences.ActionConstructorReference));
 
             if (thresholdParameterIndex == 1)
                 AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, systemReferences);
 
-            instructions.AddRange(
-                Instruction.Create(OpCodes.Newobj, implementationConstructor),
+            ExtensionMethods.AddRange(instructions, Instruction.Create(OpCodes.Newobj, implementationConstructor),
                 Instruction.Create(OpCodes.Stloc_1),
                 Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldflda, throttleField),

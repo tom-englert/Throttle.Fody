@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using JetBrains.Annotations;
-
-using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
-
-namespace Throttle.Fody
+﻿namespace Throttle.Fody
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Mono.Cecil;
+    using Mono.Cecil.Cil;
+    using Mono.Collections.Generic;
+
     internal static class ExtensionMethods
     {
         public static CustomAttribute GetAttribute(this ICustomAttributeProvider attributeProvider, string attributeName)

@@ -8,6 +8,6 @@
     <ProjectReference Include="..\Throttle\Throttle.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsBase" Condition="'$(Targetframework)'=='net46'"/>
   </ItemGroup>
 </Project>

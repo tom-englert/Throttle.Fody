@@ -1,12 +1,13 @@
-﻿using System;
-using System.Linq;
-using Fody;
-using FodyTools;
-using JetBrains.Annotations;
-using Mono.Cecil;
-
-namespace Throttle.Fody
+﻿namespace Throttle.Fody
 {
+    using System;
+
+    using FodyTools;
+
+    using JetBrains.Annotations;
+
+    using Mono.Cecil;
+
     public class SystemReferences
     {
         public MethodReference ActionConstructorReference { get; }
@@ -15,10 +16,10 @@ namespace Throttle.Fody
 
         public MethodReference GenericCompareExchangeMethod { get; }
 
-        public SystemReferences([NotNull] BaseModuleWeaver weaver)
+        public SystemReferences([NotNull] AbstractModuleWeaver weaver)
         {
             ActionConstructorReference = weaver.ImportMethod<Action, object, IntPtr>(".ctor");
-            TimeSpanFromMillisecondsReference = weaver.ImportMethod(() => TimeSpan.FromMilliseconds(default(double)));
+            TimeSpanFromMillisecondsReference = weaver.ImportMethod(() => TimeSpan.FromMilliseconds(default));
 
             var arg = default(Type);
             GenericCompareExchangeMethod = weaver.ImportMethod(() => System.Threading.Interlocked.CompareExchange(ref arg, arg, arg));
