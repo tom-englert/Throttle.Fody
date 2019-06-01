@@ -3,18 +3,21 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using JetBrains.Annotations;
+
     using Mono.Cecil;
     using Mono.Cecil.Cil;
-    using Mono.Collections.Generic;
 
     internal static class ExtensionMethods
     {
-        public static CustomAttribute GetAttribute(this ICustomAttributeProvider attributeProvider, string attributeName)
+        [CanBeNull]
+        public static CustomAttribute GetAttribute([CanBeNull] this ICustomAttributeProvider attributeProvider, string attributeName)
         {
             return attributeProvider?.CustomAttributes.GetAttribute(attributeName);
         }
 
-        public static CustomAttribute GetAttribute(this IEnumerable<CustomAttribute> attributes, string attributeName)
+        [CanBeNull]
+        private static CustomAttribute GetAttribute([CanBeNull] this IEnumerable<CustomAttribute> attributes, string attributeName)
         {
             return attributes?.FirstOrDefault(attribute => attribute.Constructor.DeclaringType.FullName == attributeName);
         }
@@ -35,26 +38,6 @@
             return type.Resolve()?.BaseType.FullName == typeof(System.Enum).FullName;
         }
 
-        public static AssemblyDefinition TryResolve(this IAssemblyResolver assemblyResolver, string assemlbyName)
-        {
-            try
-            {
-                return assemblyResolver.Resolve(new AssemblyNameReference(assemlbyName, null));
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public static void AddRange<T>(this Collection<T> collection, params T[] values)
-        {
-            foreach (var value in values)
-            {
-                collection.Add(value);
-            }
-        }
-
         public static GenericInstanceMethod MakeGeneric(this MethodReference method, TypeReference type)
         {
             var genericMethod = new GenericInstanceMethod(method);
@@ -64,7 +47,8 @@
             return genericMethod;
         }
 
-        public static T GetConstructorArgument<T>(this CustomAttribute attribute)
+        [CanBeNull]
+        public static T GetConstructorArgument<T>([CanBeNull] this CustomAttribute attribute)
             where T : class
         {
             return attribute?.ConstructorArguments?
@@ -72,7 +56,7 @@
                 .FirstOrDefault(value => value != null);
         }
 
-        public static T? GetConstructorArgument2<T>(this CustomAttribute attribute)
+        public static T? GetConstructorArgument2<T>([CanBeNull] this CustomAttribute attribute)
             where T : struct
         {
             return attribute?.ConstructorArguments?
@@ -80,7 +64,8 @@
                 .FirstOrDefault(value => value != null);
         }
 
-        public static SequencePoint GetEntryPoint(this ISymbolReader symbolReader, MethodDefinition method)
+        [CanBeNull]
+        public static SequencePoint GetEntryPoint([CanBeNull] this ISymbolReader symbolReader, [CanBeNull] MethodDefinition method)
         {
             var instruction = method?.Body?.Instructions?.FirstOrDefault();
 
@@ -90,7 +75,8 @@
             return symbolReader?.Read(method)?.GetSequencePoint(instruction);
         }
 
-        public static MethodReference Import(this MethodReference reference, ModuleDefinition module)
+        [CanBeNull]
+        public static MethodReference Import([CanBeNull] this MethodReference reference, [NotNull] ModuleDefinition module)
         {
             if (reference == null)
                 return null;
@@ -98,7 +84,8 @@
             return module.ImportReference(reference);
         }
 
-        public static TypeReference Import(this TypeReference reference, ModuleDefinition module)
+        [ContractAnnotation("reference:notnull => notnull")]
+        public static TypeReference Import([CanBeNull] this TypeReference reference, [NotNull] ModuleDefinition module)
         {
             if (reference == null)
                 return null;

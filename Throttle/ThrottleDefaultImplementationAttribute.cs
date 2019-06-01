@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable UnusedParameter.Local
 
 namespace Throttle
 {

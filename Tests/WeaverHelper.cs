@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-using Fody;
-
-using JetBrains.Annotations;
-
-using Mono.Cecil;
-
-using TomsToolbox.Core;
-
-namespace Tests
+﻿namespace Tests
 {
+    using System.Collections.Generic;
+    using System.Reflection;
+
+    using Fody;
+
+    using JetBrains.Annotations;
+
+    using Mono.Cecil;
+
+    using Throttle.Fody;
+
+    using TomsToolbox.Core;
+
     internal class WeaverHelper : DefaultAssemblyResolver
     {
         [NotNull]

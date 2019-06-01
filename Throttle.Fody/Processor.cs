@@ -10,7 +10,6 @@
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Cecil.Rocks;
-    using Mono.Collections.Generic;
 
     internal static class Processor
     {
@@ -41,7 +40,7 @@
             }
         }
 
-        private static void PostProcessClass(TypeDefinition classDefinition, ILogger logger, IReadOnlyDictionary<MethodDefinition, MethodDefinition> weavedMethods, HashSet<MethodDefinition> injectedMethods)
+        private static void PostProcessClass(TypeDefinition classDefinition, ILogger logger, IReadOnlyDictionary<MethodDefinition, MethodDefinition> weavedMethods, ICollection<MethodDefinition> injectedMethods)
         {
             var allMethods = classDefinition.Methods
                 .Where(method => method.HasBody)
@@ -53,7 +52,7 @@
             }
         }
 
-        private static void PostProcessMethod(MethodDefinition method, ILogger logger, IReadOnlyDictionary<MethodDefinition, MethodDefinition> weavedMethods, HashSet<MethodDefinition> injectedMethods)
+        private static void PostProcessMethod(MethodDefinition method, ILogger logger, IReadOnlyDictionary<MethodDefinition, MethodDefinition> weavedMethods, ICollection<MethodDefinition> injectedMethods)
         {
             if (injectedMethods.Contains(method))
                 return;
@@ -158,10 +157,10 @@
                 return;
             }
 
-            var thresholdParamter = implementationConstructor.Parameters.FirstOrDefault(p => p.ParameterType.IsIntOrTimeSpan());
-            var thresholdParameterIndex = implementationConstructor.Parameters.IndexOf(thresholdParamter);
+            var thresholdParameter = implementationConstructor.Parameters.FirstOrDefault(p => p.ParameterType.IsIntOrTimeSpan());
+            var thresholdParameterIndex = implementationConstructor.Parameters.IndexOf(thresholdParameter);
 
-            if (requiredParameterCount == 2 && thresholdParamter == null)
+            if (requiredParameterCount == 2 && thresholdParameter == null)
             {
                 logger.LogError($"{implementationConstructor} does not have a parameter of type System.Int32, System.Enum or System.TimeSpan to assign the threshold to.", symbolReader.GetEntryPoint(method));
                 return;
@@ -188,29 +187,31 @@
                 }
             };
 
-            ExtensionMethods.AddRange(newMethod.Body.Variables, new VariableDefinition(implementationTypeReference), new VariableDefinition(implementationTypeReference));
+            newMethod.Body.Variables.AddRange(new VariableDefinition(implementationTypeReference), new VariableDefinition(implementationTypeReference));
 
             var jumpTarget = Instruction.Create(OpCodes.Ldloc_0);
 
             var instructions = newMethod.Body.Instructions;
 
-            ExtensionMethods.AddRange(instructions, Instruction.Create(OpCodes.Ldarg_0),
+            instructions.AddRange(Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldfld, throttleField),
                 Instruction.Create(OpCodes.Stloc_0),
                 Instruction.Create(OpCodes.Ldloc_0),
                 Instruction.Create(OpCodes.Brtrue_S, jumpTarget));
 
             if (thresholdParameterIndex == 0)
-                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, systemReferences);
+            {
+                AddThresholdParameter(instructions, threshold, thresholdParameter?.ParameterType, systemReferences);
+            }
 
-            ExtensionMethods.AddRange(instructions, Instruction.Create(OpCodes.Ldarg_0),
+            instructions.AddRange(Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldftn, method),
                 Instruction.Create(OpCodes.Newobj, systemReferences.ActionConstructorReference));
 
             if (thresholdParameterIndex == 1)
-                AddThresholdParameter(instructions, threshold, thresholdParamter.ParameterType, systemReferences);
+                AddThresholdParameter(instructions, threshold, thresholdParameter?.ParameterType, systemReferences);
 
-            ExtensionMethods.AddRange(instructions, Instruction.Create(OpCodes.Newobj, implementationConstructor),
+            instructions.AddRange(Instruction.Create(OpCodes.Newobj, implementationConstructor),
                 Instruction.Create(OpCodes.Stloc_1),
                 Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Ldflda, throttleField),
@@ -233,8 +234,11 @@
             weavedMethods[method] = newMethod;
         }
 
-        private static void AddThresholdParameter(Collection<Instruction> instructions, int threshold, TypeReference parameterType, SystemReferences systemReferences)
+        private static void AddThresholdParameter(ICollection<Instruction> instructions, int threshold, [CanBeNull] MemberReference parameterType, SystemReferences systemReferences)
         {
+            if (parameterType == null)
+                return;
+
             if (parameterType.FullName == typeof(System.TimeSpan).FullName)
             {
                 instructions.Add(Instruction.Create(OpCodes.Ldc_R8, (double) threshold));

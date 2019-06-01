@@ -2,19 +2,23 @@
 
 using FodyTools;
 
-using Throttle.Fody;
+using JetBrains.Annotations;
 
-public class ModuleWeaver : AbstractModuleWeaver
+namespace Throttle.Fody
 {
-    public override void Execute()
+    public class ModuleWeaver : AbstractModuleWeaver
     {
-        ModuleDefinition.Process(this, new SystemReferences(this));
-    }
+        public override void Execute()
+        {
+            ModuleDefinition.Process(this, new SystemReferences(this));
+        }
 
-    public override IEnumerable<string> GetAssembliesForScanning()
-    {
-        yield return "System.Threading";
-    }
+        [NotNull, ItemNotNull]
+        public override IEnumerable<string> GetAssembliesForScanning()
+        {
+            yield return "System.Threading";
+        }
 
-    public override bool ShouldCleanReference => true;
+        public override bool ShouldCleanReference => true;
+    }
 }

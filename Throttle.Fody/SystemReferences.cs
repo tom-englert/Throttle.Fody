@@ -8,7 +8,7 @@
 
     using Mono.Cecil;
 
-    public class SystemReferences
+    internal class SystemReferences
     {
         public MethodReference ActionConstructorReference { get; }
 
@@ -16,7 +16,7 @@
 
         public MethodReference GenericCompareExchangeMethod { get; }
 
-        public SystemReferences([NotNull] AbstractModuleWeaver weaver)
+        public SystemReferences([NotNull] ITypeSystem weaver)
         {
             ActionConstructorReference = weaver.ImportMethod<Action, object, IntPtr>(".ctor");
             TimeSpanFromMillisecondsReference = weaver.ImportMethod(() => TimeSpan.FromMilliseconds(default));

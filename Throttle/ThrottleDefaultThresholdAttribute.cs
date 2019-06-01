@@ -1,7 +1,10 @@
-﻿using System;
+﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedParameter.Local
 
 namespace Throttle
 {
+    using System;
+
     /// <summary>
     /// Allows you to specify a default for the throttle threshold on assembly or class level, 
     /// so you don't have to specify it in every <see cref="ThrottledAttribute"/>.
