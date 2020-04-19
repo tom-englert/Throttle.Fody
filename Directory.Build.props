@@ -2,9 +2,9 @@
 <Project>
 
   <PropertyGroup>
-    <Copyright>Copyright © tom-englert.de 2017-2019. Distributed under the MIT License.</Copyright>
+    <Copyright>Copyright © tom-englert.de 2017-2020. Distributed under the MIT License.</Copyright>
     <Product>Throttle.Fody</Product>
-    <Version>1.5</Version>
+    <Version>1.6.0</Version>
     <Description>Injects code do to easily use throttles. Simply add the Throttled attribute to a method to wire up everything.</Description>
   </PropertyGroup>
 
