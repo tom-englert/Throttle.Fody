@@ -1,7 +1,8 @@
-﻿using System;
-
-namespace TomsToolbox.Desktop
+﻿// ReSharper disable all
+namespace SmokeTest
 {
+    using System;
+
     /// <summary>
     /// Implements a simple timed throttle.<para/>
     /// Calling <see cref="Tick()"/> multiple times will restart the timer; there will be one single 

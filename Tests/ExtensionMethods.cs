@@ -1,8 +1,8 @@
-﻿using System;
-using System.Reflection;
-
-namespace Tests
+﻿namespace Tests
 {
+    using System;
+    using System.Reflection;
+
     public static class ExtensionMethods
     {
         public static dynamic GetInstance(this Assembly assembly, string className, params object[] args)

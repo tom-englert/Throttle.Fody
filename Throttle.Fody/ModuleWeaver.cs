@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-
-using FodyTools;
-
-using JetBrains.Annotations;
-
-namespace Throttle.Fody
+﻿namespace Throttle.Fody
 {
+    using System.Collections.Generic;
+
+    using FodyTools;
+
     public class ModuleWeaver : AbstractModuleWeaver
     {
         public override void Execute()
@@ -13,7 +11,6 @@ namespace Throttle.Fody
             ModuleDefinition.Process(this, new SystemReferences(this));
         }
 
-        [NotNull, ItemNotNull]
         public override IEnumerable<string> GetAssembliesForScanning()
         {
             yield return "System.Threading";

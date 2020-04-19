@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>net40-client;net46;netstandard1.1;netstandard1.4;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <NoWarn>1701;1702;IDE0052;IDE0060</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="6.0.0">
+    <PackageReference Include="Fody" Version="6.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

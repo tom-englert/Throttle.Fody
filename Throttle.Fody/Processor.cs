@@ -5,15 +5,13 @@
 
     using FodyTools;
 
-    using JetBrains.Annotations;
-
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Cecil.Rocks;
 
     internal static class Processor
     {
-        internal static void Process([NotNull] this ModuleDefinition moduleDefinition, [NotNull] ILogger logger, [NotNull] SystemReferences coreReferences)
+        internal static void Process(this ModuleDefinition moduleDefinition, ILogger logger, SystemReferences coreReferences)
         {
             var throttleParameters = new ThrottleParameters();
 
@@ -66,8 +64,7 @@
                 if ((instruction.OpCode != OpCodes.Call) && (instruction.OpCode != OpCodes.Callvirt))
                     continue;
 
-                var calledMethod = instruction.Operand as MethodDefinition;
-                if (calledMethod == null)
+                if (!(instruction.Operand is MethodDefinition calledMethod))
                     continue;
 
                 if (!weavedMethods.TryGetValue(calledMethod, out var newMethod))
@@ -100,13 +97,13 @@
 
             if (method.Parameters.Any() || method.ReturnType.FullName != "System.Void")
             {
-                logger.LogError($"Can't weave throttle into method {method}: It does not have the signature 'void {method.Name}()'.", symbolReader.GetEntryPoint(method));
+                logger.LogError($"Can't weave throttle into method {method}: It does not have the signature 'void {method.Name}()'.", method.GetEntryPoint(symbolReader));
                 return;
             }
 
             if (throttleParameters.Implementation == null)
             {
-                logger.LogError($"Can't weave method {method.FullName} - no throttle implementation is defined.", symbolReader.GetEntryPoint(method));
+                logger.LogError($"Can't weave method {method.FullName} - no throttle implementation is defined.", method.GetEntryPoint(symbolReader));
                 return;
             }
 
@@ -122,6 +119,12 @@
                 .Implementation
                 .Import(moduleDefinition);
 
+            if (implementationTypeReference == null)
+            {
+                logger.LogError($"The type {throttleParameters.Implementation} could not be imported.", method.GetEntryPoint(symbolReader));
+                return;
+            }
+
             var implementationTypeDefinition = implementationTypeReference.Resolve();
 
             var tickMethodName = throttleParameters.MethodName ?? "Tick";
@@ -133,7 +136,7 @@
 
             if (tickMethodReference == null)
             {
-                logger.LogError($"The type {implementationTypeDefinition} does not have a public method 'void {tickMethodName}()'.", symbolReader.GetEntryPoint(method));
+                logger.LogError($"The type {implementationTypeDefinition} does not have a public method 'void {tickMethodName}()'.", method.GetEntryPoint(symbolReader));
                 return;
             }
 
@@ -146,14 +149,14 @@
 
             if (implementationConstructor == null)
             {
-                logger.LogError($"{implementationTypeDefinition} does not have a constructor with {requiredParameterCount} parameters.", symbolReader.GetEntryPoint(method));
+                logger.LogError($"{implementationTypeDefinition} does not have a constructor with {requiredParameterCount} parameters.", method.GetEntryPoint(symbolReader));
                 return;
             }
 
             var delegateParameter = implementationConstructor.Parameters.FirstOrDefault(p => p.ParameterType.IsActionOrDelegate());
             if (delegateParameter == null)
             {
-                logger.LogError($"{implementationConstructor} does not have a parameter of type System.Action or System.Delegate.", symbolReader.GetEntryPoint(method));
+                logger.LogError($"{implementationConstructor} does not have a parameter of type System.Action or System.Delegate.", method.GetEntryPoint(symbolReader));
                 return;
             }
 
@@ -162,7 +165,7 @@
 
             if (requiredParameterCount == 2 && thresholdParameter == null)
             {
-                logger.LogError($"{implementationConstructor} does not have a parameter of type System.Int32, System.Enum or System.TimeSpan to assign the threshold to.", symbolReader.GetEntryPoint(method));
+                logger.LogError($"{implementationConstructor} does not have a parameter of type System.Int32, System.Enum or System.TimeSpan to assign the threshold to.", method.GetEntryPoint(symbolReader));
                 return;
             }
 
@@ -234,7 +237,7 @@
             weavedMethods[method] = newMethod;
         }
 
-        private static void AddThresholdParameter(ICollection<Instruction> instructions, int threshold, [CanBeNull] MemberReference parameterType, SystemReferences systemReferences)
+        private static void AddThresholdParameter(ICollection<Instruction> instructions, int threshold, MemberReference? parameterType, SystemReferences systemReferences)
         {
             if (parameterType == null)
                 return;

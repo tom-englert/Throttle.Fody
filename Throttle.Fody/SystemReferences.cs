@@ -4,8 +4,6 @@
 
     using FodyTools;
 
-    using JetBrains.Annotations;
-
     using Mono.Cecil;
 
     internal class SystemReferences
@@ -16,7 +14,7 @@
 
         public MethodReference GenericCompareExchangeMethod { get; }
 
-        public SystemReferences([NotNull] ITypeSystem weaver)
+        public SystemReferences(ITypeSystem weaver)
         {
             ActionConstructorReference = weaver.ImportMethod<Action, object, IntPtr>(".ctor");
             TimeSpanFromMillisecondsReference = weaver.ImportMethod(() => TimeSpan.FromMilliseconds(default));

@@ -1,9 +1,7 @@
-﻿using Throttle;
-
-using TomsToolbox.Desktop;
-
-namespace NetStandardSmokeTest
+﻿namespace SmokeTest
 {
+    using Throttle;
+
     public class Class1
     {
         public void Test()

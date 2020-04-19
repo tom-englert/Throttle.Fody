@@ -5,12 +5,14 @@
     <TargetFrameworks>net40-client;net45;netstandard1.0;netstandard2.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Common.snk</AssemblyOriginatorKeyFile>
+    <Nullable>enable</Nullable>
+    <NoWarn>IDE0060;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FodyPackaging" Version="6.0.0" PrivateAssets="All" />
-    <PackageReference Include="Fody" Version="6.0.0" PrivateAssets="None" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19270-01" PrivateAssets="All" />
+    <PackageReference Include="FodyPackaging" Version="6.1.1" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="6.1.1" PrivateAssets="None" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
